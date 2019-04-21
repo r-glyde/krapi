@@ -1,12 +1,11 @@
 package com.rgl10.krapi.config
 
 import cats.data.Reader
+import com.rgl10.krapi.HostAndPort
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.string.{MatchesRegex, Url}
-import eu.timepit.refined.W
+import eu.timepit.refined.string.Url
 
-// TODO - go straight to custom class for kafkaBroker
-final case class KrapiConfig(kafkaBrokers: String Refined MatchesRegex[W.`"[a-zA-Z.]+:[0-9]+"`.T],
+final case class KrapiConfig(kafkaBrokers: HostAndPort,
                              schemaRegistry: String Refined Url,
                              krapiPort: Int = 8080)
 

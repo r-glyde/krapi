@@ -1,7 +1,9 @@
 package com.rgl10.krapi
 
 
-final case class HostAndPort(host: String, port: Int)
+final case class HostAndPort(host: String, port: Int) {
+  def fullname: String = s"${this.host}:${this.port}"
+}
 
 object HostAndPort {
   def apply(hostName: String): HostAndPort = {

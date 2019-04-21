@@ -37,10 +37,9 @@ class Api(config: KrapiConfig) {
   implicit val avroValDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, false)
   implicit val avroKeyDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, true)
 
-  val kafkaHost = HostAndPort(config.kafkaBrokers.value)
   val kac = KafkaAdminClient(
     AdminClient.create(
-      Map[String, AnyRef](AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG -> config.kafkaBrokers.value).asJava))
+      Map[String, AnyRef](AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG -> config.kafkaBrokers.fullname).asJava))
 
   private val toMetadataResponse: (MetadataType, Option[String]) => IO[Response[IO]] = {
     case (Topics, None)            => Ok(kac.getTopics.asJson)
@@ -89,7 +88,9 @@ class Api(config: KrapiConfig) {
       implicit keyDeserializer: Deserializer[K],
       valueDeserializer: Deserializer[V]): RecordStream[K, V] =
     kafka
-      .client[IO](Set(broker(kafkaHost.host, kafkaHost.port)), ProtocolVersion.Kafka_0_10_2, UUID.randomUUID().toString)
+      .client[IO](Set(broker(config.kafkaBrokers.host, config.kafkaBrokers.port)),
+                  ProtocolVersion.Kafka_0_10_2,
+                  UUID.randomUUID().toString)
       .flatMap { kc =>
         (0 until partitions).toList.map { p =>
           kc.subscribe(topic(topicName), partition(p), HeadOffset)

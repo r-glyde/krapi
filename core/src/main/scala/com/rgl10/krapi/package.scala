@@ -9,12 +9,15 @@ import io.confluent.kafka.serializers.{AbstractKafkaAvroSerDeConfig, KafkaAvroDe
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.{Deserializer, LongDeserializer, StringDeserializer}
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
+import pureconfig.{ConfigReader, ConvertHelpers}
 import spinoco.fs2.kafka.TopicMessage
 
 import scala.collection.JavaConverters._
 import scala.util.{Success, Try}
 
 package object krapi {
+
+  implicit val hostAndPortReader = ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_)))
 
   implicit val stringDeser = new StringDeserializer()
   implicit val longDeser   = new LongDeserializer()
