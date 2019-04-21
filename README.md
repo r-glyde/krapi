@@ -3,7 +3,7 @@
 KRAPI is a **K**afka **R**EST **API** using [http4s](https://github.com/http4s/http4s) and [fs2-kafka](https://github.com/Spinoco/fs2-kafka) providing read access to a kafka cluster.
 
 ### SETUP
-`KAFKA_BROKERS` and `SCHEMA_REGISTRY_URL` should be provided as environment variables.
+`KAFKA_BROKERS` and `SCHEMA_REGISTRY_URL` should be provided as environment variables. `KRAPI_PORT` can also be provided or else the server will default to running on port 8080.
 
 ### Routes
 #### GET
@@ -18,7 +18,7 @@ KRAPI is a **K**afka **R**EST **API** using [http4s](https://github.com/http4s/h
 #### POST
 POST requests to the consumer routes will stream records from the relevant topic.
 
-The response for these POST requests is a stream of JSON data.
+The response for these POST requests is a stream of gzipped JSON data.
 
 Example payload:
 ```json

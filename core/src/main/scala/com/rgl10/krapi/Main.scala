@@ -9,16 +9,16 @@ import org.http4s.implicits._
 import org.http4s.server.blaze._
 import org.http4s.server.Router
 import eu.timepit.refined.pureconfig._
+import org.http4s.server.middleware.GZip
 
 object Main extends IOApp {
 
   val krapiConfig = loadConfigOrThrow[Config].krapi
 
-  // TODO - switch to gzip compression
   def run(args: List[String]): IO[ExitCode] =
     BlazeServerBuilder[IO]
-      .bindHttp(8080, "localhost")
-      .withHttpApp(Router("/api" -> new Api(krapiConfig).router).orNotFound)
+      .bindHttp(krapiConfig.krapiPort, "localhost")
+      .withHttpApp(Router("/api" -> GZip(new Api(krapiConfig).router)).orNotFound)
       .resource
       .use(_ => IO.never)
       .as(ExitCode.Success)

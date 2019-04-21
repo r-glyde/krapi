@@ -4,13 +4,14 @@ import java.util.concurrent.Executors
 
 import cats.effect.{ExitCode, IO, IOApp}
 import com.rgl10.krapi.SubscriptionDetails
+import fs2.compress.gunzip
 import fs2.io.stdout
 import fs2.text.utf8Encode
 import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.syntax._
 import jawnfs2._
-import org.http4s.Uri
+import org.http4s.{Header, Uri}
 import org.http4s.circe._
 import org.http4s.client._
 import org.http4s.client.blaze._
@@ -48,7 +49,8 @@ object Main extends IOApp {
                        Uri.unsafeFromString(url) / "api" / "consumer")
         val s = for {
           sr  <- fs2.Stream.eval(req)
-          res <- client.stream(sr).flatMap(_.body.chunks.parseJsonStream)
+          res <- client.stream(sr.putHeaders(Header("Accept-Encoding", "gzip")))
+            .flatMap(_.body.through(gunzip[IO](1024)).chunks.parseJsonStream)
         } yield res
         println("[")
         blockingEcStream.flatMap { blockingEC =>
