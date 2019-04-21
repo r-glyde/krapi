@@ -4,7 +4,6 @@ import cats.effect.IO
 import cats.syntax.option._
 import io.circe.Encoder
 import io.circe.generic.auto._
-import org.http4s.circe._
 import io.confluent.kafka.serializers.{AbstractKafkaAvroSerDeConfig, KafkaAvroDeserializer}
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.{Deserializer, LongDeserializer, StringDeserializer}
@@ -26,7 +25,6 @@ package object krapi {
   implicit def recordEncoder[K: Encoder, V: Encoder] = jsonEncoderOf[IO, Record[K, V]]
   implicit def genericRecordEncoder: Encoder[GenericRecord] = genericRecord => Encoder.encodeString(genericRecord.toString)
 
-
   def toAvroDeserializer(schemaRegistryUrl: String, isKey: Boolean): Deserializer[GenericRecord] = {
     val kafkaAvroSerDeConfig = Map[String, Any] {
       AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryUrl
@@ -47,5 +45,4 @@ package object krapi {
       }
     }
   }
-
 }
