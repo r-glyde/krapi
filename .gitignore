@@ -1,0 +1,28 @@
+### Scala template
+*.class
+*.log
+
+# sbt specific
+.cache
+.history
+.lib/
+dist/*
+target/
+
+# Scala-IDE specific
+.ensime
+.ensime_cache/
+.scala_dependencies
+.worksheet
+
+# User-specific stuff:
+.idea
+
+## File-based project format:
+*.iws
+*.iml
+
+# macos
+.DS_Store
+
+build/
