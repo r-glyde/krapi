@@ -16,14 +16,14 @@ import pureconfig.loadConfigOrThrow
 
 object Main extends IOApp {
 
-  lazy val executor                            = Executors.newFixedThreadPool(10)
-  implicit val group: AsynchronousChannelGroup = AsynchronousChannelGroup.withThreadPool(executor)
-
   val krapiConfig = loadConfigOrThrow[Config].krapi
+
+  lazy val executor  = Executors.newFixedThreadPool(krapiConfig.threads)
+  implicit val group = AsynchronousChannelGroup.withThreadPool(executor)
 
   def run(args: List[String]): IO[ExitCode] =
     BlazeServerBuilder[IO]
-      .bindHttp(krapiConfig.krapiPort, "localhost")
+      .bindHttp(krapiConfig.port, "localhost")
       .withHttpApp(Router("/api" -> GZip(new Api(krapiConfig).router)).orNotFound)
       .resource
       .use(_ => IO.never)

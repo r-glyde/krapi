@@ -7,7 +7,8 @@ import eu.timepit.refined.string.Url
 
 final case class KrapiConfig(kafkaBrokers: HostAndPort,
                              schemaRegistry: String Refined Url,
-                             krapiPort: Int = 8080)
+                             port: Int = 8080,
+                             threads: Int)
 
 object KrapiConfig {
   implicit def configure: Reader[Config, KrapiConfig] = Reader(_.krapi)

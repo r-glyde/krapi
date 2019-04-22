@@ -32,7 +32,3 @@ class KafkaAdminClient(ac: AdminClient) {
   private def listTopics: Set[String] = ac.listTopics().names().get().asScala.toSet
 
 }
-
-object KafkaAdminClient {
-  def apply(ac: AdminClient): KafkaAdminClient = new KafkaAdminClient(ac)
-}

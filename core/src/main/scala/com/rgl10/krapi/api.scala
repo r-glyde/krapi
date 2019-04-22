@@ -31,7 +31,7 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO], 
   implicit val avroValDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, false)
   implicit val avroKeyDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, true)
 
-  val kac = KafkaAdminClient(
+  val kac = new KafkaAdminClient(
     AdminClient.create(
       Map[String, AnyRef](AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG -> config.kafkaBrokers.fullname).asJava))
 
