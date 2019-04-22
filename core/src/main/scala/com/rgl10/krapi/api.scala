@@ -89,7 +89,7 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO], 
         (0 until partitions).toList.map { p =>
           kc.subscribe(topic(topicName), partition(p), HeadOffset)
             .takeThrough(m => (m.offset + 1) < m.tail)
-            .map(_.asRecord[K, V](topicName, p))
+            .map(_.toRecord[K, V](topicName, p))
         }.reduce(_.merge(_))
       }
 

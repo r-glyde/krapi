@@ -32,7 +32,7 @@ package object krapi {
   }
 
   implicit class TopicMessageOps(val m: TopicMessage) extends AnyVal {
-    def asRecord[K, V](topic: String, partition: Int)(implicit keyDeserializer: Deserializer[K],
+    def toRecord[K, V](topic: String, partition: Int)(implicit keyDeserializer: Deserializer[K],
                                                       valueDeserializer: Deserializer[V]): Record[K, V] = {
       val key   = Try(keyDeserializer.deserialize(topic, m.key.toArray))
       val value = Try(valueDeserializer.deserialize(topic, m.message.toArray))

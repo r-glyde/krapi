@@ -8,7 +8,7 @@ object MetadataType {
   def unapply(str: String): Option[MetadataType] = str match {
     case "topics" => Topics.some
     case "groups" => ConsumerGroups.some
-    case _        => Option.empty[MetadataType]
+    case _        => none[MetadataType]
   }
 }
 
