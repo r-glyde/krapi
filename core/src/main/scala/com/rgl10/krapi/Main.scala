@@ -1,5 +1,8 @@
 package com.rgl10.krapi
 
+import java.nio.channels.AsynchronousChannelGroup
+import java.util.concurrent.Executors
+
 import cats.effect._
 import cats.implicits._
 import com.rgl10.krapi.config.Config
@@ -12,6 +15,9 @@ import pureconfig.generic.auto._
 import pureconfig.loadConfigOrThrow
 
 object Main extends IOApp {
+
+  lazy val executor                            = Executors.newFixedThreadPool(10)
+  implicit val group: AsynchronousChannelGroup = AsynchronousChannelGroup.withThreadPool(executor)
 
   val krapiConfig = loadConfigOrThrow[Config].krapi
 

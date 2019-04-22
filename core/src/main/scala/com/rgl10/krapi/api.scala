@@ -3,7 +3,6 @@ package com.rgl10.krapi
 import java.lang.{Long => JLong}
 import java.nio.channels.AsynchronousChannelGroup
 import java.util.UUID
-import java.util.concurrent.Executors
 
 import cats.effect.{ContextShift, IO, Timer}
 import cats.syntax.option._
@@ -12,7 +11,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
-import org.apache.kafka.common.serialization.Deserializer
+import org.apache.kafka.common.serialization.{Deserializer, LongDeserializer, StringDeserializer}
 import org.http4s.circe._
 import org.http4s.dsl.io._
 import org.http4s.{HttpRoutes, Request, Response}
@@ -21,19 +20,14 @@ import spinoco.fs2.kafka._
 import spinoco.protocol.kafka._
 
 import scala.collection.JavaConverters._
-import scala.language.higherKinds
 
-class Api(config: KrapiConfig) {
+class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO], group: AsynchronousChannelGroup) {
 
   type RecordStream[K, V] = fs2.Stream[IO, Record[K, V]]
 
-  // TODO - better way to create these?
-  import scala.concurrent.ExecutionContext.Implicits.global
-  implicit val cs: ContextShift[IO]                      = IO.contextShift(global)
-  implicit val timer: Timer[IO]                          = IO.timer(global)
-  lazy val executor                                      = Executors.newSingleThreadExecutor()
-  implicit val group: AsynchronousChannelGroup           = AsynchronousChannelGroup.withThreadPool(executor)
-  implicit val logger                                    = new KafkaLogger()
+  implicit val logger: KafkaLogger                       = new KafkaLogger()
+  implicit val stringDeser: StringDeserializer           = new StringDeserializer()
+  implicit val longDeser: LongDeserializer               = new LongDeserializer()
   implicit val avroValDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, false)
   implicit val avroKeyDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, true)
 

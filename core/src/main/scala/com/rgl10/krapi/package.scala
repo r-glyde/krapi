@@ -18,9 +18,6 @@ package object krapi {
 
   implicit val hostAndPortReader = ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_)))
 
-  implicit val stringDeser = new StringDeserializer()
-  implicit val longDeser   = new LongDeserializer()
-
   implicit def subscriptionDecoder = jsonOf[IO, SubscriptionDetails]
   implicit def recordEncoder[K: Encoder, V: Encoder] = jsonEncoderOf[IO, Record[K, V]]
   implicit def genericRecordEncoder: Encoder[GenericRecord] = genericRecord => Encoder.encodeString(genericRecord.toString)
