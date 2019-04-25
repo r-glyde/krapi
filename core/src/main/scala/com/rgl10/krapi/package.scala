@@ -16,7 +16,7 @@ import scala.util.{Success, Try}
 
 package object krapi {
 
-  implicit val hostAndPortReader = ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_)))
+  implicit val hostAndPortReader = ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_).get))
 
   implicit def subscriptionDecoder = jsonOf[IO, SubscriptionDetails]
   implicit def recordEncoder[K: Encoder, V: Encoder] = jsonEncoderOf[IO, Record[K, V]]

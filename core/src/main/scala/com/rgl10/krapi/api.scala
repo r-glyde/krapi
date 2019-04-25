@@ -31,9 +31,7 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO], 
   implicit val avroValDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, false)
   implicit val avroKeyDeser: Deserializer[GenericRecord] = toAvroDeserializer(config.schemaRegistry.value, true)
 
-  val kac = new KafkaAdminClient(
-    AdminClient.create(
-      Map[String, AnyRef](AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG -> config.kafkaBrokers.fullname).asJava))
+  val kac = new KafkaAdminClient(config.kafkaBrokers.fullname)
 
   private val toMetadataResponse: (MetadataType, Option[String]) => IO[Response[IO]] = {
     case (Topics, None)            => Ok(kac.getTopics.asJson)

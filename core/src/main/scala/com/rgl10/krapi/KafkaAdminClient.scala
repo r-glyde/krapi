@@ -1,13 +1,15 @@
 package com.rgl10.krapi
 
 import cats.syntax.option._
-import org.apache.kafka.clients.admin.AdminClient
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.apache.kafka.common.config.ConfigResource
 
 import scala.collection.JavaConverters._
 
 // TODO - tidy this up
-class KafkaAdminClient(ac: AdminClient) {
+class KafkaAdminClient(kafkaBroker: String) {
+
+  val ac = AdminClient.create(Map[String, AnyRef](AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG -> kafkaBroker).asJava)
 
   def getTopics: List[Topic] = {
     ac.describeTopics(listTopics.asJavaCollection).values().asScala.values.map { fd =>
