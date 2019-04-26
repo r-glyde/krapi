@@ -57,11 +57,11 @@ object Dependencies {
   )
 
   private val testDeps = Seq(
-    "org.scalatest"       %% "scalatest"                      % "3.0.5"               % Test,
-    "org.scalacheck"      %% "scalacheck"                     % "1.13.5"              % Test,
-    "com.ironcorelabs"    %% "cats-scalatest"                 % "2.4.0"               % Test,
-    "net.manub"           %% "scalatest-embedded-kafka"       % "1.1.0-kafka1.1-nosr" % Test,
-    "com.danielasfregola" %% "random-data-generator-magnolia" % "2.5"                 % Test,
-    "com.47deg"           %% "scalacheck-toolbox-datetime"    % "0.2.5"               % Test
+    "org.scalatest"       %% "scalatest"                      % "3.0.5"  % Test,
+    "org.scalacheck"      %% "scalacheck"                     % "1.13.5" % Test,
+    "com.ironcorelabs"    %% "cats-scalatest"                 % "2.4.0"  % Test,
+    "net.manub"           %% "scalatest-embedded-kafka"       % "2.0.0"  % Test,
+    "com.danielasfregola" %% "random-data-generator-magnolia" % "2.5"    % Test,
+    "com.47deg"           %% "scalacheck-toolbox-datetime"    % "0.2.5"  % Test
   )
 }

@@ -7,11 +7,10 @@ final case class HostAndPort(host: String, port: Int) {
 }
 
 object HostAndPort {
-  def apply(hostName: String): Option[HostAndPort] = {
+  def apply(fullname: String): Option[HostAndPort] = {
     val validHost = "([a-zA-Z.]+):([0-9]+)".r
-    validHost.findFirstMatchIn(hostName) match {
-      case Some(m) => new HostAndPort(m.group(1), m.group(2).toInt).some
-      case None    => none[HostAndPort]
+    validHost.findFirstMatchIn(fullname).fold(none[HostAndPort]) { m =>
+      new HostAndPort(m.group(1), m.group(2).toInt).some
     }
   }
 }
