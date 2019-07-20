@@ -3,6 +3,7 @@ name := "krapi"
 lazy val root = Project(id = "krapi", base = file("."))
   .aggregate(core, cli)
   .enablePlugins(DockerComposePlugin)
+  .disablePlugins(ReleasePlugin)
 
 lazy val core = module("core")
   .enablePlugins(JavaServerAppPackaging, DockerComposePlugin)
