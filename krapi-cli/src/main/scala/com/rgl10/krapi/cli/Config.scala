@@ -1,6 +1,6 @@
 package com.rgl10.krapi.cli
 
-import com.rgl10.krapi.{MetadataType, Topics}
+import com.rgl10.krapi.{MetadataType, SupportedType, Topics}
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string.Url
 import eu.timepit.refined.scopt._
@@ -10,8 +10,8 @@ final case class Config(url: String = "localhost:8080",
                         mode: Mode = Metadata,
                         entityType: MetadataType = Topics,
                         entityName: String = "",
-                        keyDeserializer: Deserializers = StringDeserializer,
-                        valueDeserializer: Deserializers = StringDeserializer,
+                        keyDeserializer: SupportedType = SupportedType.String,
+                        valueDeserializer: SupportedType = SupportedType.String,
                         prettyPrint: Boolean = false)
 
 object Config {
@@ -39,11 +39,11 @@ object Config {
         .action((x, c) => c.copy(entityName = x))
         .valueName("")
         .text("name of entity to describe or consume from"),
-      opt[Deserializers]("keyDeserializer")
+      opt[SupportedType]("keyDeserializer")
         .action((x, c) => c.copy(keyDeserializer = x))
         .valueName("")
         .text("deserializer for record keys - 'string' (default), 'long' or 'avro'"),
-      opt[Deserializers]("valueDeserializer")
+      opt[SupportedType]("valueDeserializer")
         .action((x, c) => c.copy(valueDeserializer = x))
         .valueName("")
         .text("deserializer for record values - 'string' (default), 'long' or 'avro'"),

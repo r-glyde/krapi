@@ -12,7 +12,7 @@ import org.apache.kafka.common.config.SslConfigs
 class StreamingConsumer(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) {
   import StreamingConsumer._
 
-  def streamTopic(topic: String, partitions: Int): RecordStream = {
+  def streamTopic(topic: String, partitions: Int): fs2.Stream[IO, ConsumerRecord[Array[Byte], Array[Byte]]] = {
     val settings =
       ConsumerSettings[IO, Array[Byte], Array[Byte]]
         .withBootstrapServers(config.kafkaBrokers.map(_.fullname).mkString(","))
@@ -30,10 +30,8 @@ class StreamingConsumer(config: KrapiConfig)(implicit cs: ContextShift[IO], time
         else
           consumer
             .flatMap(_.partitionedStream)
-            .map {
-              _.takeThrough(cr => (cr.record.offset + 1) < endOffsets(new TopicPartition(topic, cr.record.partition)))
-                .map(_.record.toRecord)
-            }
+            .map(_.takeThrough(cr =>
+              (cr.record.offset + 1) < endOffsets(new TopicPartition(topic, cr.record.partition))).map(_.record))
             .take(partitions)
             .parJoinUnbounded
       }

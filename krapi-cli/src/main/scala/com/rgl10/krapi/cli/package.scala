@@ -20,10 +20,10 @@ package object cli {
       case "groups" => ConsumerGroups
     }
 
-  implicit val deserializersRead: scopt.Read[Deserializers] =
+  implicit val deserializersRead: scopt.Read[SupportedType] =
     scopt.Read.reads {
-      case "string" => StringDeserializer
-      case "long"   => LongDeserializer
-      case "avro"   => AvroDeserializer
+      case "string" => SupportedType.String
+      case "long"   => SupportedType.Long
+      case "avro"   => SupportedType.Avro
     }
 }
