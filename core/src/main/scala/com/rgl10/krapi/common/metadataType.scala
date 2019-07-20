@@ -7,7 +7,7 @@ sealed trait MetadataType extends Product with Serializable
 object MetadataType {
   def unapply(str: String): Option[MetadataType] = str match {
     case "topics" => Topics.some
-    case "groups" => ConsumerGroups.some
+    case "consumergroups" => ConsumerGroups.some
     case _        => none[MetadataType]
   }
 }

@@ -34,7 +34,7 @@ object Config {
       opt[MetadataType]("entityType")
         .action((x, c) => c.copy(entityType = x))
         .valueName("")
-        .text("type of entity ('topics' (default) or 'consumer-groups') to describe or list"),
+        .text("type of entity ('topics' (default) or 'consumergroups') to describe or list"),
       opt[String]("entityName")
         .action((x, c) => c.copy(entityName = x))
         .valueName("")

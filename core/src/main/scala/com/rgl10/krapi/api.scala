@@ -4,11 +4,11 @@ import cats.effect.{ContextShift, IO, Timer}
 import cats.syntax.option._
 import com.rgl10.krapi.common._
 import com.rgl10.krapi.config.KrapiConfig
+import com.rgl10.krapi.KafkaAdminClient._
 import fs2.kafka.AdminClientSettings
 import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.common.serialization.{LongDeserializer, StringDeserializer}
 import org.http4s.circe._
 import org.http4s.dsl.io._
@@ -26,9 +26,10 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) 
       adminClient
         .map(ac =>
           (mType, mName) match {
-            case (Topics, None)    => ac.getTopics.asJson
-            case (Topics, Some(n)) => ac.getTopicConfig(n).asJson
-            case _                 => ???
+            case (Topics, None)            => ac.getTopics.asJson
+            case (Topics, Some(n))         => ac.getTopicConfig(n).asJson
+            case (ConsumerGroups, None)    => ac.getConsumerGroups.asJson
+            case (ConsumerGroups, Some(n)) => ac.describeConsumerGroup(n).asJson
         })
     }
   }

@@ -9,11 +9,11 @@ KRAPI is a **K**afka **R**EST **API** using [http4s](https://github.com/http4s/h
 #### GET
 `/api/metadata/topics` => list topics
 
-`/api/metadata/topics/TOPICNAME` => list configuration for topic `TOPICNAME`
+`/api/metadata/topics/TOPICNAME` => show configuration for topic `TOPICNAME`
 
-`/api/metadata/groups` => not implemented
+`/api/metadata/consumergroups` => list consumer groups
 
-`/api/metadata/groups/GROUPNAME` => not implemented
+`/api/metadata/consumergroups/GROUPID` => show consumer group metadata
 
 #### POST
 POST requests to the consumer routes will stream records from the relevant topic.

@@ -18,7 +18,7 @@ package object cli {
   implicit val metadataTypesRead: scopt.Read[MetadataType] =
     scopt.Read.reads {
       case "topics" => Topics
-      case "groups" => ConsumerGroups
+      case "consumergroups" => ConsumerGroups
     }
 
   implicit val deserializersRead: scopt.Read[SupportedType] =
