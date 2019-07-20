@@ -1,6 +1,6 @@
 package com.rgl10.krapi.cli
 
-import com.rgl10.krapi.{MetadataType, SupportedType, Topics}
+import com.rgl10.krapi.common._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string.Url
 import eu.timepit.refined.scopt._

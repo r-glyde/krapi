@@ -12,15 +12,12 @@ object Dependencies {
     "org.apache.kafka" % "kafka-clients"         % "2.3.0",
     "io.confluent"     % "kafka-avro-serializer" % "5.3.0",
     "com.ovoenergy"    %% "fs2-kafka"            % "0.20.0-M2",
+    "org.typelevel"    %% "cats-core"            % "1.6.1"
   )
 
   lazy val cliDeps = http4s ++ circe ++ refinedDeps ++ Seq(
     "com.github.scopt" %% "scopt"    % "4.0.0-RC2",
     "org.slf4j"        % "slf4j-nop" % "1.7.26"
-  )
-
-  lazy val commonDeps = http4s ++ circe ++ refinedDeps ++ Seq(
-    "org.typelevel" %% "cats-core" % "1.6.1"
   )
 
   private val http4s = Seq(

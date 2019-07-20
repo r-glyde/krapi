@@ -3,7 +3,6 @@ package com.rgl10.krapi.cli
 import java.util.concurrent.Executors
 
 import cats.effect.{ExitCode, IO, IOApp}
-import com.rgl10.krapi.SubscriptionDetails
 import fs2.compress.gunzip
 import fs2.io.stdout
 import fs2.text.utf8Encode
@@ -18,6 +17,8 @@ import org.http4s.client.blaze._
 import org.http4s.client.dsl.io._
 import org.http4s.dsl.io._
 import scopt.OParser
+
+import com.rgl10.krapi.common._
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global

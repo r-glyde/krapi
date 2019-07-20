@@ -9,7 +9,8 @@ object DockerSettings {
   lazy val common = Seq(
     dockerBaseImage := "openjdk:8u201-alpine",
     dockerRepository := Some(dockerRepo),
+    dockerLabels := Map("maintainer" -> "r-glyde"),
     dockerUpdateLatest := true,
-    packageName in Docker := name.value,
+    packageName in Docker := s"krapi/${name.value}"
   )
 }

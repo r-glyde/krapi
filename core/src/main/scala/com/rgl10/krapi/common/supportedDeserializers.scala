@@ -1,4 +1,4 @@
-package com.rgl10.krapi
+package com.rgl10.krapi.common
 
 sealed trait SupportedType extends Product with Serializable {
   def toValue: String = this match {

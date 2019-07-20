@@ -1,4 +1,4 @@
-package com.rgl10.krapi
+package com.rgl10.krapi.common
 
 import cats.syntax.option._
 

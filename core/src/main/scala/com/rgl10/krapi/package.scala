@@ -4,6 +4,7 @@ import java.lang.{Long => JLong}
 
 import cats.effect.IO
 import cats.syntax.option._
+import com.rgl10.krapi.common._
 import fs2.kafka._
 import io.circe.Json
 import io.circe.generic.auto._

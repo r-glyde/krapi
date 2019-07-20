@@ -1,4 +1,4 @@
-package com.rgl10.krapi
+package com.rgl10.krapi.common
 
 final case class Topic(name: String, partitions: Int, replicationFactor: Int)
 final case class ConfigItem(name: String, value: String, isDefault: Boolean, isReadOnly: Boolean)

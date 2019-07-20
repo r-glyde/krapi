@@ -2,25 +2,23 @@ name := "krapi"
 version := "0.1"
 
 lazy val root = Project(id = "krapi", base = file("."))
-  .aggregate(common, core, cli)
+  .aggregate(core, cli)
   .enablePlugins(DockerComposePlugin)
-
-lazy val common = module("common")
-  .settings(resolvers += Resolver.sonatypeRepo("snapshots"))
 
 lazy val core = module("core")
   .enablePlugins(JavaServerAppPackaging, DockerComposePlugin)
+  .settings(Release.releaseSettings)
   .settings(resolvers ++= Seq(
       Resolver.sonatypeRepo("snapshots"),
       "confluent-release" at "http://packages.confluent.io/maven/"
     )
   )
-  .dependsOn(common)
 
-lazy val cli = module("krapi-cli")
+lazy val cli = module("cli")
   .enablePlugins(JavaServerAppPackaging)
+  .settings(Release.releaseSettings)
   .settings(resolvers += Resolver.sonatypeRepo("snapshots"))
-  .dependsOn(common)
+  .dependsOn(core)
 
 def module(name: String): Project =
   Project(id = name, base = file(name))
