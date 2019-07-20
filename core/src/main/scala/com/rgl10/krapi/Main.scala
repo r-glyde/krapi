@@ -1,8 +1,5 @@
 package com.rgl10.krapi
 
-import java.nio.channels.AsynchronousChannelGroup
-import java.util.concurrent.Executors
-
 import cats.effect._
 import cats.implicits._
 import com.rgl10.krapi.config.Config
@@ -17,9 +14,6 @@ import pureconfig.loadConfigOrThrow
 object Main extends IOApp {
 
   val krapiConfig = loadConfigOrThrow[Config].krapi
-
-  lazy val executor  = Executors.newFixedThreadPool(krapiConfig.threads)
-  implicit val group = AsynchronousChannelGroup.withThreadPool(executor)
 
   def run(args: List[String]): IO[ExitCode] =
     BlazeServerBuilder[IO]

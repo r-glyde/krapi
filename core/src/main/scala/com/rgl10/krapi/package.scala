@@ -1,6 +1,9 @@
 package com.rgl10
 
+import cats.Monoid
 import cats.effect.IO
+import cats.instances.option._
+import cats.syntax.foldable._
 import cats.syntax.option._
 import io.circe.Encoder
 import io.circe.generic.auto._
@@ -9,20 +12,24 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.{Deserializer, LongDeserializer, StringDeserializer}
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import pureconfig.{ConfigReader, ConvertHelpers}
-import spinoco.fs2.kafka.TopicMessage
+import fs2.kafka._
 
 import scala.collection.JavaConverters._
-import scala.util.{Success, Try}
 
 package object krapi {
 
-  type RecordStream[K, V] = fs2.Stream[IO, Record[K, V]]
+  type RecordStream = fs2.Stream[IO, Record[String, String]]
 
-  implicit val hostAndPortReader = ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_).get))
+  implicit val stringDeserializer: StringDeserializer = new StringDeserializer()
+  implicit val longDeserializer: LongDeserializer     = new LongDeserializer()
+
+  implicit val hostAndPortReader =
+    ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_).get))
 
   implicit def subscriptionDecoder = jsonOf[IO, SubscriptionDetails]
-  implicit def recordEncoder[K: Encoder, V: Encoder] = jsonEncoderOf[IO, Record[K, V]]
-  implicit def genericRecordEncoder: Encoder[GenericRecord] = genericRecord => Encoder.encodeString(genericRecord.toString)
+  implicit def recordEncoder[K : Encoder, V : Encoder]       = jsonEncoderOf[IO, Record[K, V]]
+  implicit def genericRecordEncoder: Encoder[GenericRecord] =
+    genericRecord => Encoder.encodeString(genericRecord.toString)
 
   def toAvroDeserializer(schemaRegistryUrl: String, isKey: Boolean): Deserializer[GenericRecord] = {
     val kafkaAvroSerDeConfig = Map[String, Any] {
@@ -33,15 +40,14 @@ package object krapi {
     kafkaAvroDeserializer.asInstanceOf[Deserializer[GenericRecord]]
   }
 
-  implicit class TopicMessageOps(val m: TopicMessage) extends AnyVal {
-    def toRecord[K, V](topic: String, partition: Int)(implicit keyDeserializer: Deserializer[K],
-                                                      valueDeserializer: Deserializer[V]): Record[K, V] = {
-      val key   = Try(keyDeserializer.deserialize(topic, m.key.toArray))
-      val value = Try(valueDeserializer.deserialize(topic, m.message.toArray))
-      (key, value) match {
-        case (Success(k), Success(v)) if m.message.size > 0 => Record(topic, k, v.some, m.key.size, m.message.size, partition)
-        case (Success(k), _) if m.message.size == 0 => Record(topic, k, none[V], m.key.size, -1L, partition)
-      }
-    }
+  implicit class ConsumerRecordOps(val cr: ConsumerRecord[Array[Byte], Array[Byte]]) extends AnyVal {
+    def toRecord: Record[String, String] =
+      Record(
+        cr.topic,
+        if (cr.serializedKeySize.isDefined) stringDeserializer.deserialize(cr.topic, cr.key).some else None,
+        if (cr.serializedValueSize.isDefined) stringDeserializer.deserialize(cr.topic, cr.value).some else None,
+        cr.partition,
+        cr.timestamp.createTime.get
+      )
   }
 }

@@ -1,6 +1,6 @@
 # KRAPI
 
-KRAPI is a **K**afka **R**EST **API** using [http4s](https://github.com/http4s/http4s) and [fs2-kafka](https://github.com/Spinoco/fs2-kafka) providing read access to a kafka cluster.
+KRAPI is a **K**afka **R**EST **API** using [http4s](https://github.com/http4s/http4s) and [fs2-kafka](https://github.com/ovotech/fs2-kafka) providing read access to a kafka cluster.
 
 ### SETUP
 `KAFKA_BROKERS` and `SCHEMA_REGISTRY_URL` should be provided as environment variables. `KRAPI_PORT` can also be provided or else the server will default to running on port 8080.

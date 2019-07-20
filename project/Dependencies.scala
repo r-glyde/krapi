@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
 
-  val http4sVersion     = "0.20.0-SNAPSHOT"
+  val http4sVersion     = "0.20.0"
   val circeVersion      = "0.11.1"
   val pureconfigVersion = "0.10.1"
   val refinedVersion    = "0.9.5"
@@ -11,7 +11,7 @@ object Dependencies {
     "org.apache.kafka" %% "kafka"                % "2.2.0",
     "org.apache.kafka" % "kafka-clients"         % "2.2.0",
     "io.confluent"     % "kafka-avro-serializer" % "4.1.3",
-    "com.spinoco"      %% "fs2-kafka"            % "0.4.0",
+    "com.ovoenergy"    %% "fs2-kafka"            % "0.20.0-M2",
     "org.typelevel"    %% "cats-core"            % "1.5.0"
   )
 
@@ -57,11 +57,11 @@ object Dependencies {
   )
 
   private val testDeps = Seq(
-    "org.scalatest"       %% "scalatest"                      % "3.0.5"  % Test,
-    "org.scalacheck"      %% "scalacheck"                     % "1.13.5" % Test,
-    "com.ironcorelabs"    %% "cats-scalatest"                 % "2.4.0"  % Test,
-    "net.manub"           %% "scalatest-embedded-kafka"       % "2.0.0"  % Test,
-    "com.danielasfregola" %% "random-data-generator-magnolia" % "2.5"    % Test,
-    "com.47deg"           %% "scalacheck-toolbox-datetime"    % "0.2.5"  % Test
+    "org.scalatest"           %% "scalatest"                      % "3.0.5"  % Test,
+    "org.scalacheck"          %% "scalacheck"                     % "1.13.5" % Test,
+    "com.ironcorelabs"        %% "cats-scalatest"                 % "2.4.0"  % Test,
+    "io.github.embeddedkafka" %% "embedded-kafka"                 % "2.2.0"  % Test,
+    "com.danielasfregola"     %% "random-data-generator-magnolia" % "2.5"    % Test,
+    "com.47deg"               %% "scalacheck-toolbox-datetime"    % "0.2.5"  % Test
   )
 }
