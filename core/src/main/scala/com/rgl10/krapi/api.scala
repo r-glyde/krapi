@@ -3,6 +3,7 @@ package com.rgl10.krapi
 import cats.effect.{ContextShift, IO, Timer}
 import cats.syntax.option._
 import com.rgl10.krapi.config.KrapiConfig
+import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.apache.kafka.common.serialization.{LongDeserializer, StringDeserializer}
@@ -24,6 +25,8 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) 
   private val toConsumerResponse: (Request[IO], Option[String]) => IO[Response[IO]] = (req, key) => {
     req.as[SubscriptionDetails].flatMap {
       case SubscriptionDetails(t, keyType, valueType) =>
+        val keyDeserializer   = deserializerFor(keyType, true)
+        val valueDeserializer = deserializerFor(valueType, false)
         kac
           .getTopicConfig(t)
           .fold(BadRequest())(c => {
@@ -31,20 +34,20 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) 
               filteredByKey(key) {
                 new StreamingConsumer(config)
                   .streamTopic(t, c.topic.partitions)
-                  .map(_.toRecord(deserializerFor(keyType, true), deserializerFor(valueType, false)))
+                  .map(_.toRecord(keyDeserializer, valueDeserializer))
               }
             }
           })
     }
   }
 
-  def filteredByKey(key: Option[String]): RecordStream => RecordStream =
-    stream => key.fold(stream)(k => stream.filter(r => r.key.isDefined && r.key.get == k))
+  def filteredByKey(key: Option[String]): RecordStream[Json, Json] => RecordStream[Json, Json] =
+    stream => key.fold(stream)(k => stream.filter(r => r.key.isDefined && r.key.get.noSpaces == k))
 
   def deserializerFor(`type`: String, isKey: Boolean): SupportedDeserializer = SupportedType.fromString(`type`) match {
-    case SupportedType.Avro => avroDeserializer(config.schemaRegistry.value, isKey)
-    case SupportedType.Long => new LongDeserializer
-    case _                  => new StringDeserializer
+    case SupportedType.Avro   => avroDeserializer(config.schemaRegistry.value, isKey)
+    case SupportedType.Long   => new LongDeserializer
+    case SupportedType.String => new StringDeserializer
   }
 
   val router: HttpRoutes[IO] = HttpRoutes.of[IO] {
