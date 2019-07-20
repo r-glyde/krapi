@@ -4,6 +4,7 @@ lazy val root = Project(id = "krapi", base = file("."))
   .aggregate(core, cli)
   .enablePlugins(DockerComposePlugin)
   .disablePlugins(ReleasePlugin)
+  .settings(addCommandAlias("dockerRelease", ";project core; release; project cli; release"))
 
 lazy val core = module("core")
   .enablePlugins(JavaServerAppPackaging, DockerComposePlugin)
