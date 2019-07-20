@@ -9,6 +9,6 @@ object DockerSettings {
     dockerRepository := Some("glyderj"),
     dockerLabels := Map("maintainer" -> "r-glyde"),
     dockerUpdateLatest := true,
-    packageName in Docker := s"krapi/${name.value}"
+    packageName in Docker := s"krapi-${name.value}"
   )
 }
