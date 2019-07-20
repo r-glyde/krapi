@@ -1,5 +1,4 @@
 name := "krapi"
-version := "0.1"
 
 lazy val root = Project(id = "krapi", base = file("."))
   .aggregate(core, cli)
