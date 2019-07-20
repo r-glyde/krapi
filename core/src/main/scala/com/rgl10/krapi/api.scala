@@ -3,9 +3,11 @@ package com.rgl10.krapi
 import cats.effect.{ContextShift, IO, Timer}
 import cats.syntax.option._
 import com.rgl10.krapi.config.KrapiConfig
+import fs2.kafka.AdminClientSettings
 import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.syntax._
+import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.common.serialization.{LongDeserializer, StringDeserializer}
 import org.http4s.circe._
 import org.http4s.dsl.io._
@@ -13,13 +15,21 @@ import org.http4s.{HttpRoutes, Request, Response}
 
 class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) {
 
-  val kac = new KafkaAdminClient(config.kafkaBrokers.map(_.fullname).mkString(","))
+  private val adminClient =
+    AdminClientSettings[IO]
+      .withBootstrapServers(config.kafkaBrokers.map(_.fullname).mkString(","))
+      .createAdminClient
 
-  private val toMetadataResponse: (MetadataType, Option[String]) => IO[Response[IO]] = {
-    case (Topics, None)            => Ok(kac.getTopics.asJson)
-    case (Topics, Some(n))         => Ok(kac.getTopicConfig(n).asJson)
-    case (ConsumerGroups, None)    => NotImplemented()
-    case (ConsumerGroups, Some(_)) => NotImplemented()
+  private val toMetadataResponse: (MetadataType, Option[String]) => IO[Response[IO]] = (mType, mName) => {
+    Ok {
+      adminClient
+        .map(ac =>
+          (mType, mName) match {
+            case (Topics, None)    => ac.getTopics.asJson
+            case (Topics, Some(n)) => ac.getTopicConfig(n).asJson
+            case _                 => ???
+        })
+    }
   }
 
   private val toConsumerResponse: (Request[IO], Option[String]) => IO[Response[IO]] = (req, key) => {
@@ -27,17 +37,18 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) 
       case SubscriptionDetails(t, keyType, valueType) =>
         val keyDeserializer   = deserializerFor(keyType, true)
         val valueDeserializer = deserializerFor(valueType, false)
-        kac
-          .getTopicConfig(t)
-          .fold(BadRequest())(c => {
-            Ok {
-              filteredByKey(key) {
-                new StreamingConsumer(config)
-                  .streamTopic(t, c.topic.partitions)
-                  .map(_.toRecord(keyDeserializer, valueDeserializer))
+        adminClient.flatMap { ac =>
+          ac.getTopicConfig(t)
+            .fold(BadRequest())(c => {
+              Ok {
+                filteredByKey(key) {
+                  new StreamingConsumer(config)
+                    .streamTopic(t, c.topic.partitions)
+                    .map(_.toRecord(keyDeserializer, valueDeserializer))
+                }
               }
-            }
-          })
+            })
+        }
     }
   }
 
@@ -45,9 +56,9 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) 
     stream => key.fold(stream)(k => stream.filter(r => r.key.isDefined && r.key.get.noSpaces == k))
 
   def deserializerFor(`type`: String, isKey: Boolean): SupportedDeserializer = SupportedType.fromString(`type`) match {
-    case SupportedType.Avro   => avroDeserializer(config.schemaRegistry.value, isKey)
-    case SupportedType.Long   => new LongDeserializer
     case SupportedType.String => new StringDeserializer
+    case SupportedType.Long   => new LongDeserializer
+    case SupportedType.Avro   => avroDeserializer(config.schemaRegistry.value, isKey)
   }
 
   val router: HttpRoutes[IO] = HttpRoutes.of[IO] {

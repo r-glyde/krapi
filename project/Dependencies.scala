@@ -2,26 +2,25 @@ import sbt._
 
 object Dependencies {
 
-  val http4sVersion     = "0.20.0"
+  val http4sVersion     = "0.20.6"
   val circeVersion      = "0.11.1"
-  val pureconfigVersion = "0.10.1"
-  val refinedVersion    = "0.9.5"
+  val pureconfigVersion = "0.11.1"
+  val refinedVersion    = "0.9.8"
 
   lazy val coreDeps = http4s ++ circe ++ logging ++ pureconfigDeps ++ refinedDeps ++ testDeps ++ Seq(
-    "org.apache.kafka" %% "kafka"                % "2.2.0",
-    "org.apache.kafka" % "kafka-clients"         % "2.2.0",
-    "io.confluent"     % "kafka-avro-serializer" % "4.1.3",
+    "org.apache.kafka" %% "kafka"                % "2.3.0",
+    "org.apache.kafka" % "kafka-clients"         % "2.3.0",
+    "io.confluent"     % "kafka-avro-serializer" % "5.3.0",
     "com.ovoenergy"    %% "fs2-kafka"            % "0.20.0-M2",
-    "org.typelevel"    %% "cats-core"            % "1.5.0"
   )
 
   lazy val cliDeps = http4s ++ circe ++ refinedDeps ++ Seq(
     "com.github.scopt" %% "scopt"    % "4.0.0-RC2",
-    "org.slf4j"        % "slf4j-nop" % "1.7.6"
+    "org.slf4j"        % "slf4j-nop" % "1.7.26"
   )
 
   lazy val commonDeps = http4s ++ circe ++ refinedDeps ++ Seq(
-    "org.typelevel" %% "cats-core" % "1.5.0"
+    "org.typelevel" %% "cats-core" % "1.6.1"
   )
 
   private val http4s = Seq(
@@ -38,9 +37,9 @@ object Dependencies {
   )
 
   private val logging = Seq(
-    "com.typesafe.scala-logging" %% "scala-logging"   % "3.7.2",
-    "org.slf4j"                  % "log4j-over-slf4j" % "1.7.25",
-    "org.slf4j"                  % "slf4j-api"        % "1.7.25",
+    "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.2",
+    "org.slf4j"                  % "log4j-over-slf4j" % "1.7.26",
+    "org.slf4j"                  % "slf4j-api"        % "1.7.26",
     "ch.qos.logback"             % "logback-classic"  % "1.2.3" % Runtime
   )
 
@@ -57,11 +56,11 @@ object Dependencies {
   )
 
   private val testDeps = Seq(
-    "org.scalatest"           %% "scalatest"                      % "3.0.5"  % Test,
-    "org.scalacheck"          %% "scalacheck"                     % "1.13.5" % Test,
-    "com.ironcorelabs"        %% "cats-scalatest"                 % "2.4.0"  % Test,
-    "io.github.embeddedkafka" %% "embedded-kafka"                 % "2.2.0"  % Test,
-    "com.danielasfregola"     %% "random-data-generator-magnolia" % "2.5"    % Test,
+    "org.scalatest"           %% "scalatest"                      % "3.0.8"  % Test,
+    "org.scalacheck"          %% "scalacheck"                     % "1.14.0" % Test,
+    "com.ironcorelabs"        %% "cats-scalatest"                 % "2.4.1"  % Test,
+    "io.github.embeddedkafka" %% "embedded-kafka"                 % "2.3.0"  % Test,
+    "com.danielasfregola"     %% "random-data-generator-magnolia" % "2.6"    % Test,
     "com.47deg"               %% "scalacheck-toolbox-datetime"    % "0.2.5"  % Test
   )
 }

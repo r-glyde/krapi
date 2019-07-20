@@ -5,15 +5,17 @@ import java.lang.{Long => JLong}
 import cats.effect.IO
 import cats.syntax.option._
 import fs2.kafka._
-import io.circe.{Encoder, Json}
+import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 import io.confluent.kafka.serializers.{AbstractKafkaAvroSerDeConfig, KafkaAvroDeserializer}
 import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.clients.admin.AdminClient
+import org.apache.kafka.common.config.ConfigResource
 import org.apache.kafka.common.serialization.Deserializer
-import org.http4s.{EntityDecoder, EntityEncoder}
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
+import org.http4s.{EntityDecoder, EntityEncoder}
 import pureconfig.{ConfigReader, ConvertHelpers}
 
 import scala.collection.JavaConverters._
@@ -49,5 +51,30 @@ package object krapi {
         cr.partition,
         cr.timestamp.createTime.get
       )
+  }
+
+  implicit class AdminClientOps(val ac: AdminClient) extends AnyVal {
+    def listTopics: Set[String] = ac.listTopics().names().get().asScala.toSet
+
+    def getTopics: List[Topic] = {
+      ac.describeTopics(listTopics.asJavaCollection).values().asScala.values.map { fd =>
+        val desc  = fd.get()
+        val parts = desc.partitions().asScala.toList
+        Topic(desc.name(), parts.size, parts.head.replicas().size())
+      }
+    }.toList
+
+    def getTopicConfig(topicName: String): Option[Configuration] =
+      getTopics.find(_.name == topicName).fold(Option.empty[Configuration]) { topic =>
+        val configEntries = ac
+          .describeConfigs(Set(new ConfigResource(ConfigResource.Type.TOPIC, topicName)).asJavaCollection)
+          .values()
+          .asScala
+          .values
+          .flatMap(_.get().entries().asScala)
+          .toList
+        Configuration(topic, configEntries.map(c => ConfigItem(c.name(), c.value(), c.isDefault, c.isReadOnly))).some
+      }
+
   }
 }
