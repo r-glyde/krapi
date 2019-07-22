@@ -1,7 +1,5 @@
 package com.rgl10
 
-import java.lang.{Long => JLong}
-
 import cats.effect.IO
 import cats.syntax.option._
 import com.rgl10.krapi.common._
@@ -12,8 +10,6 @@ import io.circe.parser._
 import io.circe.syntax._
 import io.confluent.kafka.serializers.{AbstractKafkaAvroSerDeConfig, KafkaAvroDeserializer}
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.clients.admin.AdminClient
-import org.apache.kafka.common.config.ConfigResource
 import org.apache.kafka.common.serialization.Deserializer
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.{EntityDecoder, EntityEncoder}
@@ -24,7 +20,6 @@ import scala.collection.JavaConverters._
 package object krapi {
 
   type RecordStream[K, V]    = fs2.Stream[IO, Record[K, V]]
-  type SupportedDeserializer = Deserializer[_ >: GenericRecord with JLong with String <: Object]
 
   implicit val hostAndPortReader =
     ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_).get))
@@ -44,7 +39,7 @@ package object krapi {
   def encode(value: String): Option[Json] = parse(value).fold(_ => value.asJson.some, _.some)
 
   implicit class ConsumerRecordOps(val cr: ConsumerRecord[Array[Byte], Array[Byte]]) extends AnyVal {
-    def toRecord(kD: SupportedDeserializer, vD: SupportedDeserializer): Record[Json, Json] =
+    def toRecord[K, V](kD: Deserializer[K], vD: Deserializer[V]): Record[Json, Json] =
       Record(
         cr.topic,
         if (cr.serializedKeySize.isDefined) encode(kD.deserialize(cr.topic, cr.key).toString) else none[Json],

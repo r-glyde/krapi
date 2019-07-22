@@ -25,13 +25,15 @@ class StreamingConsumer(config: KrapiConfig)(implicit cs: ContextShift[IO], time
 
     consumer
       .evalMap(_.endOffsets(topicPartitions))
+      .map(_.map { case (p, o) => p.partition() -> o })
       .flatMap { endOffsets =>
         if (endOffsets.values.toSet == Set(0)) fs2.Stream.empty
         else
           consumer
             .flatMap(_.partitionedStream)
-            .map(_.takeThrough(cr =>
-              (cr.record.offset + 1) < endOffsets(new TopicPartition(topic, cr.record.partition))).map(_.record))
+            .map { ps =>
+              ps.map(_.record).takeThrough(cr => (cr.offset + 1) < endOffsets(cr.partition))
+            }
             .take(partitions)
             .parJoinUnbounded
       }
