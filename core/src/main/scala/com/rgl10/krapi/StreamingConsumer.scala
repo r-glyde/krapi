@@ -41,8 +41,8 @@ class StreamingConsumer(config: KrapiConfig)(implicit cs: ContextShift[IO], time
 }
 
 object StreamingConsumer {
-  implicit class ConsumerSettingsOps(val settings: ConsumerSettings[IO, Array[Byte], Array[Byte]]) extends AnyVal {
-    def withSecurityConfig(config: Option[SecurityConfig]): ConsumerSettings[IO, Array[Byte], Array[Byte]] =
+  implicit class ConsumerSettingsOps[K, V](val settings: ConsumerSettings[IO, K, V]) extends AnyVal {
+    def withSecurityConfig(config: Option[SecurityConfig]): ConsumerSettings[IO, K, V] =
       config.fold(settings) { sc =>
         settings
           .withProperties(

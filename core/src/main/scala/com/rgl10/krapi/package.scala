@@ -19,7 +19,7 @@ import scala.collection.JavaConverters._
 
 package object krapi {
 
-  type RecordStream[K, V]    = fs2.Stream[IO, Record[K, V]]
+  type RecordStream[K, V] = fs2.Stream[IO, Record[K, V]]
 
   implicit val hostAndPortReader =
     ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_).get))

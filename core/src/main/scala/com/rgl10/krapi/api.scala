@@ -57,12 +57,11 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) 
   def filteredByKey(key: Option[String]): RecordStream[Json, Json] => RecordStream[Json, Json] =
     stream => key.fold(stream)(k => stream.filter(r => r.key.isDefined && r.key.get.noSpaces == k))
 
-  def deserializerFor(`type`: String, isKey: Boolean): Deserializer[_] =
-    SupportedType.fromString(`type`) match {
-      case SupportedType.String => new StringDeserializer
-      case SupportedType.Long   => new LongDeserializer
-      case SupportedType.Avro   => avroDeserializer(config.schemaRegistry.value, isKey)
-    }
+  def deserializerFor(`type`: String, isKey: Boolean): Deserializer[_] = SupportedType.fromString(`type`) match {
+    case SupportedType.String => new StringDeserializer
+    case SupportedType.Long   => new LongDeserializer
+    case SupportedType.Avro   => avroDeserializer(config.schemaRegistry.value, isKey)
+  }
 
   val router: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "metadata" / MetadataType(t) / n                          => toMetadataResponse(t, n.some)

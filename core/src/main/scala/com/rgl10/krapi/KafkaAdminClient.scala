@@ -20,7 +20,7 @@ object KafkaAdminClient {
     }.toList
 
     def getTopicConfig(topicName: String): Option[Configuration] =
-      getTopics.find(_.name == topicName).fold(Option.empty[Configuration]) { topic =>
+      getTopics.find(_.name == topicName).fold(none[Configuration]) { topic =>
         val configEntries = ac
           .describeConfigs(Set(new ConfigResource(ConfigResource.Type.TOPIC, topicName)).asJavaCollection)
           .values()
@@ -39,6 +39,6 @@ object KafkaAdminClient {
           case (topicPartition, offset) => s"${topicPartition.topic()}-${topicPartition.partition()}" -> offset.offset()
         }
         ConsumerGroup(groupId, offsets).some
-      } else None
+      } else none[ConsumerGroup]
   }
 }
