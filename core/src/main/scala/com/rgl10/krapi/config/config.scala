@@ -8,6 +8,7 @@ import eu.timepit.refined.string.Url
 final case class KrapiConfig(kafkaBrokers: List[HostAndPort],
                              schemaRegistry: String Refined Url,
                              port: Int = 8080,
+                             bindHost: String = "localhost",
                              securityConfig: Option[SecurityConfig] = None)
 
 object KrapiConfig {

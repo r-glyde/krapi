@@ -25,27 +25,27 @@ package object krapi {
     ConfigReader.fromString[HostAndPort](ConvertHelpers.catchReadError(HostAndPort(_).get))
 
   implicit def subscriptionDecoder: EntityDecoder[IO, SubscriptionDetails] = jsonOf[IO, SubscriptionDetails]
-  implicit def recordEncoder: EntityEncoder[IO, Record[Json, Json]]        = jsonEncoderOf[IO, Record[Json, Json]]
+
+  implicit def recordEncoder: EntityEncoder[IO, Record[Json, Json]] = jsonEncoderOf[IO, Record[Json, Json]]
 
   def avroDeserializer(schemaRegistryUrl: String, isKey: Boolean): Deserializer[GenericRecord] = {
-    val kafkaAvroSerDeConfig = Map[String, Any] {
-      AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryUrl
-    }
     val kafkaAvroDeserializer = new KafkaAvroDeserializer()
-    kafkaAvroDeserializer.configure(kafkaAvroSerDeConfig.asJava, isKey)
+    kafkaAvroDeserializer.configure(Map {
+      AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryUrl
+    }.asJava, isKey)
     kafkaAvroDeserializer.asInstanceOf[Deserializer[GenericRecord]]
   }
 
-  def encode(value: String): Option[Json] = parse(value).fold(_ => value.asJson.some, _.some)
-
   implicit class ConsumerRecordOps(val cr: ConsumerRecord[Array[Byte], Array[Byte]]) extends AnyVal {
-    def toRecord[K, V](kD: Deserializer[K], vD: Deserializer[V]): Record[Json, Json] =
+    def toJsonRecord[K, V](kD: Deserializer[K], vD: Deserializer[V]): Record[Json, Json] = {
+      val encoded: String => Option[Json] = v => parse(v).fold(_ => v.asJson.some, _.some)
       Record(
         cr.topic,
-        if (cr.serializedKeySize.isDefined) encode(kD.deserialize(cr.topic, cr.key).toString) else none[Json],
-        if (cr.serializedValueSize.isDefined) encode(vD.deserialize(cr.topic, cr.value).toString) else none[Json],
+        cr.serializedKeySize.flatMap(_ => encoded(kD.deserialize(cr.topic, cr.key).toString)),
+        cr.serializedValueSize.flatMap(_ => encoded(vD.deserialize(cr.topic, cr.value).toString)),
         cr.partition,
         cr.timestamp.createTime.get
       )
+    }
   }
 }

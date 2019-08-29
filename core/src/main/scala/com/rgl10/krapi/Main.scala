@@ -17,7 +17,7 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     BlazeServerBuilder[IO]
-      .bindHttp(krapiConfig.port, "0.0.0.0")
+      .bindHttp(krapiConfig.port, krapiConfig.bindHost)
       .withHttpApp(Router("/api" -> GZip(new Api(krapiConfig).router)).orNotFound)
       .resource
       .use(_ => IO.never)

@@ -6,7 +6,6 @@ import com.rgl10.krapi.KafkaAdminClient._
 import com.rgl10.krapi.common._
 import com.rgl10.krapi.config.KrapiConfig
 import fs2.kafka.AdminClientSettings
-import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.apache.kafka.common.serialization.{Deserializer, LongDeserializer, StringDeserializer}
@@ -37,25 +36,21 @@ class Api(config: KrapiConfig)(implicit cs: ContextShift[IO], timer: Timer[IO]) 
   private val toConsumerResponse: (Request[IO], Option[String]) => IO[Response[IO]] = (req, key) => {
     req.as[SubscriptionDetails].flatMap {
       case SubscriptionDetails(t, keyType, valueType) =>
-        val keyDeserializer   = deserializerFor(keyType, true)
-        val valueDeserializer = deserializerFor(valueType, false)
+        val keyDeserializer   = deserializerFor(keyType, isKey = true)
+        val valueDeserializer = deserializerFor(valueType, isKey = false)
         adminClient.flatMap { ac =>
           ac.getTopicConfig(t)
             .fold(BadRequest())(c => {
               Ok {
-                filteredByKey(key) {
-                  new StreamingConsumer(config)
-                    .streamTopic(t, c.topic.partitions)
-                    .map(_.toRecord(keyDeserializer, valueDeserializer))
-                }
+                new StreamingConsumer(config)
+                  .streamTopic(t, c.topic.partitions)
+                  .map(_.toJsonRecord(keyDeserializer, valueDeserializer))
+                  .filter(r => key.fold(true)(k => r.key == Option(k.asJson)))
               }
             })
         }
     }
   }
-
-  def filteredByKey(key: Option[String]): RecordStream[Json, Json] => RecordStream[Json, Json] =
-    stream => key.fold(stream)(k => stream.filter(r => r.key.isDefined && r.key.get.noSpaces == k))
 
   def deserializerFor(`type`: String, isKey: Boolean): Deserializer[_] = SupportedType.fromString(`type`) match {
     case SupportedType.String => new StringDeserializer
