@@ -4,6 +4,7 @@ import cats.effect.{ContextShift, IO, Timer}
 import cats.syntax.option._
 import com.rgl10.krapi.KafkaAdminClient._
 import com.rgl10.krapi.common._
+import com.rgl10.krapi.common.MetadataType._
 import com.rgl10.krapi.config.KrapiConfig
 import fs2.kafka.AdminClientSettings
 import io.circe.generic.auto._

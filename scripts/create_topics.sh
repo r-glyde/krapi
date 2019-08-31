@@ -7,5 +7,5 @@ kafka-topics.sh --zookeeper localhost:2181 --create --topic topic-5 --partitions
 kafka-topics.sh --zookeeper localhost:2181 --create --topic topic-6 --partitions 5 --replication-factor 1
 
 for i in {1..100}; do
-    echo "$i:message$i" | kafkacat -P -b localhost:9092 -t topic-3 -K:
+    echo "$i:{\"message\":\"$i\"}" | kafkacat -P -b localhost:9092 -t topic-1 -K:
 done

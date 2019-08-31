@@ -1,7 +1,7 @@
 package com.rgl10.krapi.common
 
 sealed trait SupportedType extends Product with Serializable {
-  def toValue: String = this match {
+  def asString: String = this match {
     case SupportedType.String => "string"
     case SupportedType.Long   => "long"
     case SupportedType.Avro   => "avro"

@@ -16,8 +16,9 @@ object Dependencies {
   )
 
   lazy val cliDeps = http4s ++ circe ++ refinedDeps ++ Seq(
-    "com.github.scopt" %% "scopt"    % "4.0.0-RC2",
-    "org.slf4j"        % "slf4j-nop" % "1.7.26"
+    "com.monovore"     %% "decline"         % "0.5.0",
+    "com.monovore"     %% "decline-refined" % "0.5.0",
+    "org.slf4j"        % "slf4j-nop"        % "1.7.26"
   )
 
   private val http4s = Seq(
@@ -48,8 +49,7 @@ object Dependencies {
   private val refinedDeps = Seq(
     "eu.timepit" %% "refined"            % refinedVersion,
     "eu.timepit" %% "refined-pureconfig" % refinedVersion,
-    "eu.timepit" %% "refined-scalacheck" % refinedVersion,
-    "eu.timepit" %% "refined-scopt"      % refinedVersion
+    "eu.timepit" %% "refined-scalacheck" % refinedVersion
   )
 
   private val testDeps = Seq(
