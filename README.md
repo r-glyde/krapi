@@ -36,14 +36,26 @@ Example payload:
 A CLI application is provided in the `krapi-cli` module.
 ```
 $ krapi-cli --help
-Usage: krapi-cli [options]
+Usage: krapi-cli --url <string> --mode <string> [--entityType <string>] [--entityName <string>] [--keyDeserializer <string>] [--valueDeserializer <string>] [--pretty]
 
-  -u, --url             url of the running krapi server e.g. http://localhost:8080
-  -m, --mode            either 'M'etadata or 'C'onsumer
-  --entityType          type of entity ('topics' (default) or 'consumer-groups') to describe or list
-  --entityName          name of entity to describe or consume from
-  --keyDeserializer     deserializer for record keys - 'string' (default), 'long' or 'avro'
-  --valueDeserializer   deserializer for record values - 'string' (default), 'long' or 'avro'
-  --pretty              pretty print output consumer stream
-  --help                prints this usage text
+CLI tool to interact with a krapi server
+
+Options and flags:
+    --help
+        Display this help text.
+    --url <string>
+        url of the running krapi server
+    --mode <string>
+        either 'M'etadata or 'C'onsumer
+    --entityType <string>
+        type of entity ('topics' or 'consumergroups') to describe or list
+    --entityName <string>
+        name of entity to describe or consume from
+    --keyDeserializer <string>
+        deserializer for record keys - 'string' (default), 'long' or 'avro'
+    --valueDeserializer <string>
+        deserializer for record values - 'string' (default), 'long' or 'avro'
+    --pretty
+        pretty print output consumer stream
+
 ```
