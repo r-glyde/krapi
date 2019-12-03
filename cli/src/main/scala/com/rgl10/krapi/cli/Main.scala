@@ -56,7 +56,7 @@ object Main extends IOApp {
                         .through(gunzip[IO](1024))
                         .chunks
                         .parseJsonStream
-                        .map(maybePretty(_, pretty))
+                        .map(json => if (pretty) json.spaces2 else json.noSpaces)
                     }
                 }
                 .intersperse("\n")
@@ -67,8 +67,6 @@ object Main extends IOApp {
             .asRight
       }
   }
-
-  def maybePretty(json: Json, pretty: Boolean): String = if (pretty) json.spaces2 else json.noSpaces
 
   def run(args: List[String]): IO[ExitCode] =
     BlazeClientBuilder[IO](global).resource.use { client =>
