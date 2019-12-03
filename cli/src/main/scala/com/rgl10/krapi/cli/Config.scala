@@ -2,6 +2,7 @@ package com.rgl10.krapi.cli
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
+import cats.effect.IO
 import com.monovore.decline._
 import com.monovore.decline.refined._
 import com.rgl10.krapi.common._
@@ -10,8 +11,9 @@ import eu.timepit.refined.string.Url
 
 object Config {
 
-  val cliCommand: Opts[CliApp] => Command[CliApp] =
-    Command[CliApp](name = "krapi-cli", header = "CLI tool to interact with a krapi server")
+  val cliCommand: Opts[Either[ConfigurationError, IO[Unit]]] => Command[Either[ConfigurationError, IO[Unit]]] =
+    Command[Either[ConfigurationError, IO[Unit]]](name = "krapi-cli",
+                                                  header = "CLI tool to interact with a krapi server")
 
   implicit val readDeserializer: Argument[SupportedType] = new Argument[SupportedType] {
     override def read(input: String): ValidatedNel[String, SupportedType] = input.toLowerCase match {

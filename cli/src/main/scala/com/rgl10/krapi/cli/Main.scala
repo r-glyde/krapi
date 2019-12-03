@@ -3,8 +3,8 @@ package com.rgl10.krapi.cli
 import java.util.concurrent.Executors
 
 import cats.effect.{ExitCode, IO, IOApp, Resource}
-import cats.implicits._
-import com.monovore.decline._
+import cats.syntax.apply._
+import cats.syntax.either._
 import com.rgl10.krapi.cli.Config._
 import com.rgl10.krapi.cli.Mode._
 import com.rgl10.krapi.common._
@@ -26,7 +26,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.ExecutionContext.fromExecutorService
 
 object Main extends IOApp {
-  val cliApp: Client[IO] => Command[CliApp] = client =>
+  private val cliApp = (client: Client[IO]) =>
     cliCommand {
       (urlOpt, modeOpt, entityTypeOpt, entityNameOpt, keyDeserializerOpt, valueDeserializerOpt, prettyPrintOpt).mapN {
         case (_, Metadata, None, _, _, _, _) =>
@@ -44,7 +44,7 @@ object Main extends IOApp {
           )
 
           Resource
-            .make(IO.delay(Executors.newFixedThreadPool(1)))(pool => IO.delay(pool.shutdown()))
+            .make(IO(Executors.newFixedThreadPool(1)))(pool => IO(pool.shutdown()))
             .use { blockingExecutor =>
               fs2.Stream
                 .eval(requestBody)
@@ -72,22 +72,11 @@ object Main extends IOApp {
     BlazeClientBuilder[IO](global).resource.use { client =>
       IO {
         val command = cliApp(client)
-        command
-          .parse(args)
-          .fold(
-            h => {
-              println(h)
-              ExitCode.Error
-            }, {
-              case Left(error) =>
-                println(error.errorMsg)
-                println(command.showHelp)
-                ExitCode.Error
-              case Right(programme) =>
-                programme.unsafeRunSync()
-                ExitCode.Success
-            }
-          )
+        command.parse(args) match {
+          case Left(help)              => println(help); ExitCode.Error
+          case Right(Left(error))      => println(s"${error.errorMsg}\n${command.showHelp}"); ExitCode.Error
+          case Right(Right(programme)) => programme.unsafeRunSync(); ExitCode.Success
+        }
       }
     }
 }
