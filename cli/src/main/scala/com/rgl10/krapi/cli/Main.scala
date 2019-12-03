@@ -2,7 +2,7 @@ package com.rgl10.krapi.cli
 
 import java.util.concurrent.Executors
 
-import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.implicits._
 import com.monovore.decline._
 import com.rgl10.krapi.cli.Config._
@@ -43,9 +43,9 @@ object Main extends IOApp {
             Uri.unsafeFromString(url.value) / "api" / "consumer"
           )
 
-          fs2.Stream
-            .bracket(IO.delay(Executors.newFixedThreadPool(1)))(pool => IO.delay(pool.shutdown()))
-            .flatMap { blockingExecutor =>
+          Resource
+            .make(IO.delay(Executors.newFixedThreadPool(1)))(pool => IO.delay(pool.shutdown()))
+            .use { blockingExecutor =>
               fs2.Stream
                 .eval(requestBody)
                 .flatMap { request =>
@@ -61,9 +61,9 @@ object Main extends IOApp {
                 }
                 .intersperse("\n")
                 .through(utf8Encode andThen stdout(fromExecutorService(blockingExecutor)))
+                .compile
+                .drain
             }
-            .compile
-            .drain
             .asRight
       }
   }
