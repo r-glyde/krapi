@@ -7,7 +7,7 @@ import org.http4s.circe.jsonEncoderOf
 
 package object cli {
 
-  type CliApp = Either[ApplicationError, Unit]
+  type CliApp = Either[ConfigurationError, IO[Unit]]
 
   implicit def subscriptionEncoder = jsonEncoderOf[IO, SubscriptionDetails]
 
